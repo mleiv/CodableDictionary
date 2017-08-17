@@ -19,20 +19,16 @@ extension CodableDictionaryValueType: Codable {
         let container = try decoder.singleValueContainer()
         value = {
             if let value = try? container.decode(Date.self) {
-                print("Date-")
                 return value
             } else if let value = try? container.decode(UUID.self) {
-                print("UUID-")
                 return value
             } else if let value = try? container.decode(Int.self) {
-                print("Int-")
                 return value
             } else if let value = try? container.decode(Float.self) {
                 return value
             } else if let value = try? container.decode(Bool.self) {
                 return value
             } else if let value = try? container.decode(String.self) {
-                print("String-")
                 return value
             } else {
                 return nil
@@ -42,20 +38,16 @@ extension CodableDictionaryValueType: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         if let value = value as? Date {
-            print("-Date")
             try container.encode(value)
         } else if let value = value as? UUID {
-            print("-UUID")
             try container.encode(value)
         } else if let value = value as? Int {
-            print("-Int")
             try container.encode(value)
         } else if let value = value as? Float {
             try container.encode(value)
         } else if let value = value as? Bool {
             try container.encode(value)
         } else if let value = value as? String {
-            print("-String")
             try container.encode(value)
         } else {
             try container.encodeNil()
