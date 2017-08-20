@@ -23,15 +23,6 @@ public enum CodableDictionaryValueType: Codable {
     indirect case dictionary(CodableDictionary)
     case empty
 
-//    public init(_ value: Date) { self = .date(value) }
-//    public init(_ value: UUID) { self = .uuid(value) }
-//    public init(_ value: Int) { self = .int(value) }
-//    public init(_ value: Float) { self = .float(value) }
-//    public init(_ value: Bool) { self = .bool(value) }
-//    public init(_ value: String) { self = .string(value) }
-//    public init(_ value: CodableDictionary) { self = .dictionary(value) }
-//    // nil?
-
     public init(_ value: Any?) {
         self = {
             if let value = value as? Date {
@@ -111,17 +102,3 @@ extension CodableDictionaryValueType: CustomDebugStringConvertible {
 extension CodableDictionaryValueType: CustomStringConvertible {
     public var description: String { return String(describing: value) }
 }
-// Date and UUID missing
-//extension CodableDictionaryValueType: ExpressibleByIntegerLiteral {
-//    public init(integerLiteral value: Int) { self.value = value }
-//}
-//extension CodableDictionaryValueType: ExpressibleByFloatLiteral {
-//    public init(floatLiteral value: Float) { self.value = value }
-//}
-//extension CodableDictionaryValueType: ExpressibleByBooleanLiteral {
-//    public init(booleanLiteral value: Bool) { self.value = value }
-//}
-//extension CodableDictionaryValueType: ExpressibleByStringLiteral {
-//    public init(stringLiteral value: String) { self.value = value }
-//}
-

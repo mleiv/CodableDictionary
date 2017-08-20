@@ -93,4 +93,3 @@ extension CodableDictionary: CustomDebugStringConvertible {
 extension CodableDictionary: CustomStringConvertible {
     public var description: String { return dictionary.description }
 }
-
