@@ -26,11 +26,15 @@ struct CodableStruct: Codable {
 }
 
 // source data
-let uuid = UUID()
+let uuid1 = UUID()
+let uuid2 = UUID()
 let json = """
     {
         "genericList": {
-            "uuid": "\(uuid)"
+            "uuid1": "\(uuid1)",
+            "sublist": {
+                "uuid2": "\(uuid2)"
+            }
         }
     }
 """
@@ -38,9 +42,11 @@ let minifiedJson = json.replacingOccurrences(of: "\\s", with: "", options: .regu
 
 // decode
 let decodeList = try JSONDecoder().decode(CodableStruct.self, from: minifiedJson.data(using: .utf8)!)
-decodeList.genericList["uuid"].value is UUID
+(decodeList.genericList["sublist"] as? CodableDictionary)?["uuid2"] is UUID
 
 // encode
-var encodeList = CodableStruct(genericList: ["uuid": uuid])
-String(data: try JSONEncoder().encode(encodeList), encoding: .utf8) == minifiedJson
+var encodeList = CodableStruct(genericList: ["uuid1": uuid1])
+encodeList.genericList["sublist"] = CodableDictionary(["uuid2": uuid2]) // nested dictionaries MUST be CodableDictionary
+String(data: try JSONEncoder().encode(encodeList), encoding: .utf8)
+minifiedJson
 

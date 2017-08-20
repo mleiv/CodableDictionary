@@ -2,8 +2,11 @@
 //  CodableDictionary.swift
 //  MEGameTracker
 //
-//  Created by Emily Ivie on 8/16/17.
-//  Copyright © 2017 Emily Ivie. All rights reserved.
+//  Copyright © 2017 Emily Ivie.
+//
+//  Licensed under The MIT License
+//  For full copyright and license information, please see http://opensource.org/licenses/MIT
+//  Redistributions of files must retain the above copyright notice.
 //
 
 import Foundation
@@ -38,7 +41,7 @@ public struct CodableDictionary {
     public typealias Key = String
     public typealias Value = CodableDictionaryValueType
     public typealias DictionaryType = Dictionary<Key, Value>
-    private let dictionary: DictionaryType
+    public private(set) var dictionary: DictionaryType
     public init(_ dictionary: [String: Any?] = [:]) {
         self.dictionary = Dictionary(uniqueKeysWithValues: dictionary.map {
             ($0.0, CodableDictionaryValueType($0.1))
@@ -56,12 +59,12 @@ extension CodableDictionary: Collection {
     public subscript(position: Index) -> Iterator.Element { return dictionary[position] }
     public subscript(bounds: Range<Index>) -> SubSequence { return dictionary[bounds] }
     public var indices: Indices { return dictionary.indices }
-    public subscript(key: Key) -> Value {
-        get { return dictionary[key] ?? CodableDictionaryValueType(nil) }
-//        set { dictionary[key] = newValue }
+    public subscript(key: Key) -> Any? {
+        get { return dictionary[key]?.value ?? nil }
+        set(newValue) { dictionary[key] = CodableDictionaryValueType(newValue) }
     }
-    public func index(after i: Index) -> Index {
-        return dictionary.index(after: i)
+    public func index(after index: Index) -> Index {
+        return dictionary.index(after: index)
     }
     public func makeIterator() -> DictionaryIterator<Key, Value> {
         return dictionary.makeIterator()
@@ -76,6 +79,7 @@ extension CodableDictionary:  ExpressibleByDictionaryLiteral {
 extension CodableDictionary: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
+        print("Y")
         dictionary = try container.decode(DictionaryType.self)
     }
     public func encode(to encoder: Encoder) throws {
@@ -89,3 +93,4 @@ extension CodableDictionary: CustomDebugStringConvertible {
 extension CodableDictionary: CustomStringConvertible {
     public var description: String { return dictionary.description }
 }
+

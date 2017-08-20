@@ -6,6 +6,6 @@ This is something Codable is currently missing versus the older JSONSerializatio
 
 I've included a playground example.
 
-CodableDictionary is currently limited to Date, UUID, Int, Float, Bool, and String. I've left it immutable for now, because UUID and Date have no ExpressibleLiteral type, so those two would require some jumping through some hoops in order to permit subscript mutations.
+CodableDictionary is currently limited to Date, UUID, Int, Float, Bool, String, and recursive CodableDictionary.
 
 Obviously this could all be improved, but I just needed something to process my existing data, until Apple works this all out.
