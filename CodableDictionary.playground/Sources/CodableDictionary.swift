@@ -40,13 +40,25 @@ import Foundation
 ///    var encodeList = Test(genericList: ["uuid": UUID()])
 ///    String(data: try JSONEncoder().encode(encodeList), encoding: .utf8)
 /// ```
+///
+/// Warning: boolean values must be written as true and false, not 1 and 0.
+///     CodableDictionary does not recognize the abbreviated integer form.
 public struct CodableDictionary {
     public typealias Key = String
     public typealias Value = CodableDictionaryValueType
     public typealias DictionaryType = [Key: Value]
-    public private(set) var dictionary: DictionaryType
+    public var dictionary: [Key: Any?] {
+        return Dictionary(uniqueKeysWithValues: internalDictionary.map {
+            if let d = ($0.1).value as? CodableDictionary {
+                return ($0.0, d.dictionary)
+            } else {
+                return ($0.0, ($0.1).value)
+            }
+        })
+    }
+    private var internalDictionary: DictionaryType
     public init(_ dictionary: [String: Any?] = [:]) {
-        self.dictionary = Dictionary(uniqueKeysWithValues: dictionary.map {
+        self.internalDictionary = Dictionary(uniqueKeysWithValues: dictionary.map {
             ($0.0, CodableDictionaryValueType($0.1))
         })
     }
@@ -57,36 +69,36 @@ extension CodableDictionary: Collection {
     public typealias Iterator = DictionaryType.Iterator
     public typealias SubSequence = DictionaryType.SubSequence
 
-    public var startIndex: Index { return dictionary.startIndex }
-    public var endIndex: DictionaryType.Index { return dictionary.endIndex }
-    public subscript(position: Index) -> Iterator.Element { return dictionary[position] }
-    public subscript(bounds: Range<Index>) -> SubSequence { return dictionary[bounds] }
-    public var indices: Indices { return dictionary.indices }
+    public var startIndex: Index { return internalDictionary.startIndex }
+    public var endIndex: DictionaryType.Index { return internalDictionary.endIndex }
+    public subscript(position: Index) -> Iterator.Element { return internalDictionary[position] }
+    public subscript(bounds: Range<Index>) -> SubSequence { return internalDictionary[bounds] }
+    public var indices: Indices { return internalDictionary.indices }
     public subscript(key: Key) -> Any? {
-        get { return dictionary[key]?.value ?? nil }
-        set(newValue) { dictionary[key] = CodableDictionaryValueType(newValue) }
+        get { return internalDictionary[key]?.value ?? nil }
+        set(newValue) { internalDictionary[key] = CodableDictionaryValueType(newValue) }
     }
     public func index(after index: Index) -> Index {
-        return dictionary.index(after: index)
+        return internalDictionary.index(after: index)
     }
     public func makeIterator() -> DictionaryIterator<Key, Value> {
-        return dictionary.makeIterator()
+        return internalDictionary.makeIterator()
     }
     public typealias Index = DictionaryType.Index
 }
 extension CodableDictionary:  ExpressibleByDictionaryLiteral {
     public init(dictionaryLiteral elements: (Key, Value)...) {
-        dictionary = DictionaryType(uniqueKeysWithValues: elements)
+        internalDictionary = DictionaryType(uniqueKeysWithValues: elements)
     }
 }
 extension CodableDictionary: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        dictionary = try container.decode(DictionaryType.self)
+        internalDictionary = try container.decode(DictionaryType.self)
     }
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        try container.encode(dictionary)
+        try container.encode(internalDictionary)
     }
 }
 extension CodableDictionary: CustomDebugStringConvertible {

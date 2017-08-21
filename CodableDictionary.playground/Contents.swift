@@ -13,14 +13,17 @@ import Foundation
 struct CodableStruct: Codable {
     enum CodingKeys: String, CodingKey {
         case genericList
+        case isBoolean
     }
     var genericList: CodableDictionary
+    var isBoolean: Bool?
     init(genericList: [String: Any?]) {
         self.genericList = CodableDictionary(genericList)
     }
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         genericList = try container.decodeIfPresent(CodableDictionary.self, forKey: .genericList) ?? CodableDictionary()
+        isBoolean = try container.decodeIfPresent(Bool.self, forKey: .isBoolean)
     }
     // encode not required
 }
@@ -30,6 +33,7 @@ let uuid1 = UUID()
 let uuid2 = UUID()
 let json = """
     {
+        "isBoolean": true,
         "genericList": {
             "uuid1": "\(uuid1)",
             "sublist": {
@@ -47,6 +51,15 @@ let decodeList = try JSONDecoder().decode(CodableStruct.self, from: minifiedJson
 // encode
 var encodeList = CodableStruct(genericList: ["uuid1": uuid1])
 encodeList.genericList["sublist"] = CodableDictionary(["uuid2": uuid2]) // nested dictionaries MUST be CodableDictionary
-String(data: try JSONEncoder().encode(encodeList), encoding: .utf8)
-minifiedJson
+String(data: try JSONEncoder().encode(encodeList), encoding: .utf8) == minifiedJson
+
+// boolean must be boolean, not int
+let json2 = """
+    {
+        "isBoolean": 1,
+        "genericList": {}
+    }
+"""
+let minifiedJson2 = json2.replacingOccurrences(of: "\\s", with: "", options: .regularExpression)
+let decodeList2 = try JSONDecoder().decode(CodableStruct.self, from: minifiedJson2.data(using: .utf8)!)
 

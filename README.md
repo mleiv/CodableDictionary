@@ -6,6 +6,6 @@ This is something Codable is currently missing versus the older JSONSerializatio
 
 I've included a playground example.
 
-CodableDictionary is currently limited to Date, UUID, Int, Float, Bool, String, and recursive CodableDictionary.
+CodableDictionary is currently limited to Date, UUID, Int, Float, Bool, String, and recursive CodableDictionary. Additonally, Bool must be true/false not 1/0.
 
 Obviously this could all be improved, but I just needed something to process my existing data, until Apple works this all out.
