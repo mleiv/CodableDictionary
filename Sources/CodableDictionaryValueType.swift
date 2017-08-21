@@ -48,7 +48,6 @@ public enum CodableDictionaryValueType: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         self = {
-        print("X")
             if let value = try? container.decode(CodableDictionary.self) {
                 return .dictionary(value)
             } else if let value = try? container.decode(Date.self) {

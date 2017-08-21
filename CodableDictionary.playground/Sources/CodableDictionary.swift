@@ -26,7 +26,10 @@ import Foundation
 ///        }
 ///        init(from decoder: Decoder) throws {
 ///            let container = try decoder.container(keyedBy: CodingKeys.self)
-///            genericList = try container.decodeIfPresent(CodableDictionary.self, forKey: .genericList) ?? CodableDictionary()
+///            genericList = try container.decodeIfPresent(
+///                            CodableDictionary.self,
+///                            forKey: .genericList
+///                           ) ?? CodableDictionary()
 ///        }
 ///        // encode not required
 ///    }
@@ -40,7 +43,7 @@ import Foundation
 public struct CodableDictionary {
     public typealias Key = String
     public typealias Value = CodableDictionaryValueType
-    public typealias DictionaryType = Dictionary<Key, Value>
+    public typealias DictionaryType = [Key: Value]
     public private(set) var dictionary: DictionaryType
     public init(_ dictionary: [String: Any?] = [:]) {
         self.dictionary = Dictionary(uniqueKeysWithValues: dictionary.map {
@@ -79,7 +82,6 @@ extension CodableDictionary:  ExpressibleByDictionaryLiteral {
 extension CodableDictionary: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        print("Y")
         dictionary = try container.decode(DictionaryType.self)
     }
     public func encode(to encoder: Encoder) throws {
@@ -93,4 +95,3 @@ extension CodableDictionary: CustomDebugStringConvertible {
 extension CodableDictionary: CustomStringConvertible {
     public var description: String { return dictionary.description }
 }
-
