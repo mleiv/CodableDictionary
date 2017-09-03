@@ -59,7 +59,11 @@ public struct CodableDictionary {
     private var internalDictionary: DictionaryType
     public init(_ dictionary: [String: Any?] = [:]) {
         self.internalDictionary = Dictionary(uniqueKeysWithValues: dictionary.map {
-            ($0.0, CodableDictionaryValueType($0.1))
+            if let dictionary = $0.1 as? [String: Any?] {
+                return ($0.0, CodableDictionaryValueType(CodableDictionary(dictionary)))
+            } else {
+                return ($0.0, CodableDictionaryValueType($0.1))
+            }
         })
     }
 }
@@ -107,3 +111,4 @@ extension CodableDictionary: CustomDebugStringConvertible {
 extension CodableDictionary: CustomStringConvertible {
     public var description: String { return dictionary.description }
 }
+
