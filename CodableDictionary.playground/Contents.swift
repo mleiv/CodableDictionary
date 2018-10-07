@@ -56,14 +56,30 @@ encodeList.genericList["sublist"] = CodableDictionary(["uuid2": uuid2]) // neste
 encodeList.genericList["sublist2"] = [CodableDictionaryValueType(1), CodableDictionaryValueType(2)] // nested arrays MUST be [CodableDictionaryValueType]
 String(data: try JSONEncoder().encode(encodeList), encoding: .utf8) == minifiedJson
 
-// boolean must be boolean, not int
-let json2 = """
-    {
-        "isBoolean": 1,
-        "genericList": {}
-    }
-"""
-let minifiedJson2 = json2.replacingOccurrences(of: "\\s", with: "", options: .regularExpression)
-let decodeList2 = try JSONDecoder().decode(CodableStruct.self, from: minifiedJson2.data(using: .utf8)!)
+// try simple data
+let data: Data? = "A VALUE".data(using: .utf8)
+var encodeListWithData = CodableStruct(genericList: ["data": data])
+let minifiedJsonData = try JSONEncoder().encode(encodeListWithData)
+let decodeListWithData = try JSONDecoder().decode(CodableStruct.self, from: minifiedJsonData)
+decodeListWithData.genericList["data"] as? Data == data
+// try harder data
+let randomDictionary: [String: Int] = ["A VALUE": 1]
+let data2 = try NSKeyedArchiver.archivedData(withRootObject: randomDictionary, requiringSecureCoding: true)
+var encodeListWithData2 = CodableStruct(genericList: ["data": data2])
+let minifiedJsonData2 = try JSONEncoder().encode(encodeListWithData2)
+let decodeListWithData2 = try JSONDecoder().decode(CodableStruct.self, from: minifiedJsonData2)
+decodeListWithData2.genericList["data"] as? Data == data2
+try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(decodeListWithData2.genericList["data"] as! Data) as? [String: Int] == randomDictionary
+
+
+// produces exception: boolean must be boolean, not int
+//let json2 = """
+//    {
+//        "isBoolean": 1,
+//        "genericList": {}
+//    }
+//"""
+//let minifiedJson2 = json2.replacingOccurrences(of: "\\s", with: "", options: .regularExpression)
+//let decodeList2 = try JSONDecoder().decode(CodableStruct.self, from: minifiedJson2.data(using: .utf8)!)
 
 
