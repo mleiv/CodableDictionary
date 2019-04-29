@@ -32,17 +32,17 @@ struct CodableStruct: Codable {
 let uuid1 = UUID()
 let uuid2 = UUID()
 let json = """
-    {
-        "isBoolean": true,
-        "genericList": {
-            "uuid1": "\(uuid1)",
-            "sublist": {
-                "uuid2": "\(uuid2)"
-            },
-            "sublist2": [1, 2]
-        }
-    }
-"""
+            {
+                "isBoolean": true,
+                "genericList": {
+                    "uuid1": "\(uuid1)",
+                    "sublist": [1, 2],
+                    "sublist2": {
+                        "uuid2": "\(uuid2)"
+                    }
+                }
+            }
+            """
 let minifiedJson = json.replacingOccurrences(of: "\\s", with: "", options: .regularExpression)
 
 // decode
@@ -52,8 +52,8 @@ print(decodeList.genericList.dictionary)
 // encode
 var encodeList = CodableStruct(genericList: ["uuid1": uuid1])
 encodeList.isBoolean = true
-encodeList.genericList["sublist"] = CodableDictionary(["uuid2": uuid2]) // nested dictionaries MUST be CodableDictionary
-encodeList.genericList["sublist2"] = [CodableDictionaryValueType(1), CodableDictionaryValueType(2)] // nested arrays MUST be [CodableDictionaryValueType]
+encodeList.genericList["sublist"] = [CodableDictionaryValueType(1), CodableDictionaryValueType(2)] // nested arrays MUST be [CodableDictionaryValueType]
+encodeList.genericList["sublist2"] = CodableDictionary(["uuid2": uuid2]) // nested dictionaries MUST be CodableDictionary
 String(data: try JSONEncoder().encode(encodeList), encoding: .utf8) == minifiedJson
 
 // try simple data
