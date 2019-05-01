@@ -21,8 +21,8 @@ public enum CodableDictionaryValueType: Codable {
     case date(Date)
     case string(String)
     case data(Data)
-    indirect case dictionary(CodableDictionary)
     indirect case array([CodableDictionaryValueType])
+    indirect case dictionary(CodableDictionary)
     case empty
 
     //    public init(_ value: Date) { self = .date(value) }
@@ -37,7 +37,9 @@ public enum CodableDictionaryValueType: Codable {
 
     public init(_ value: Any?) {
         self = {
-            if let value = value as? UUID {
+            if let value = value as? CodableDictionaryValueType {
+                return value
+            } else if let value = value as? UUID {
                 return .uuid(value)
             } else if let value = value as? Bool {
                 return .bool(value)
@@ -91,6 +93,10 @@ public enum CodableDictionaryValueType: Codable {
             } else if let value = try? container.decode(Date.self) {
                 return .date(value)
             } else if let value = try? container.decode(Data.self) {
+                if let stringValue = try? container.decode(String.self),
+                    ["Triggers", "BlockedUntil"].contains(stringValue) { // I can't even...
+                    return .string(stringValue)
+                }
                 return .data(value)
             } else if let value = try? container.decode(String.self) {
                 return .string(value)
@@ -111,8 +117,8 @@ public enum CodableDictionaryValueType: Codable {
         case .date(let value): try container.encode(value)
         case .data(let value): try container.encode(value)
         case .string(let value): try container.encode(value)
-        case .dictionary(let value): try container.encode(value)
         case .array(let value): try container.encode(value)
+        case .dictionary(let value): try container.encode(value)
         default: try container.encodeNil()
         }
     }
@@ -121,21 +127,25 @@ public enum CodableDictionaryValueType: Codable {
         switch self {
         case .uuid(let value): return value
         case .bool(let value): return value
-        case .int(let value): return value
+        case .int(let value): print(value);return value
         case .double(let value): return value
         case .float(let value): return value
         case .date(let value): return value
         case .data(let value): return value
         case .string(let value): return value
-        case .dictionary(let value): return value
         case .array(let value): return value.map { $0.value }
+        case .dictionary(let value): return value
         default: return nil
         }
     }
 }
 extension CodableDictionaryValueType: CustomDebugStringConvertible {
-    public var debugDescription: String { return String(describing: value) }
+    public var debugDescription: String {
+        return String(describing: value)
+    }
 }
 extension CodableDictionaryValueType: CustomStringConvertible {
-    public var description: String { return String(describing: value) }
+    public var description: String {
+        return String(describing: value)
+    }
 }

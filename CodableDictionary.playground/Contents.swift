@@ -48,12 +48,13 @@ let minifiedJson = json.replacingOccurrences(of: "\\s", with: "", options: .regu
 // decode
 let decodeList = try JSONDecoder().decode(CodableStruct.self, from: minifiedJson.data(using: .utf8)!)
 print(decodeList.genericList.dictionary)
-(decodeList.genericList["sublist"] as? CodableDictionary)?["uuid2"] is UUID
+(decodeList.genericList["sublist2"] as? CodableDictionary)?["uuid2"] is UUID
 // encode
 var encodeList = CodableStruct(genericList: ["uuid1": uuid1])
 encodeList.isBoolean = true
 encodeList.genericList["sublist"] = [CodableDictionaryValueType(1), CodableDictionaryValueType(2)] // nested arrays MUST be [CodableDictionaryValueType]
 encodeList.genericList["sublist2"] = CodableDictionary(["uuid2": uuid2]) // nested dictionaries MUST be CodableDictionary
+print(String(data: try JSONEncoder().encode(encodeList), encoding: .utf8))
 String(data: try JSONEncoder().encode(encodeList), encoding: .utf8) == minifiedJson
 
 // try simple data
@@ -70,6 +71,12 @@ let minifiedJsonData2 = try JSONEncoder().encode(encodeListWithData2)
 let decodeListWithData2 = try JSONDecoder().decode(CodableStruct.self, from: minifiedJsonData2)
 decodeListWithData2.genericList["data"] as? Data == data2
 try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(decodeListWithData2.genericList["data"] as! Data) as? [String: Int] == randomDictionary
+
+// problem strings ffs
+let stringConfusedForData = "{\"type\": \"Triggers\"}"
+let decodeStringConfusedForData = try JSONDecoder().decode(CodableDictionary.self, from: stringConfusedForData.data(using: .utf8)!)
+print(decodeStringConfusedForData);
+
 
 
 // produces exception: boolean must be boolean, not int
